@@ -6,8 +6,8 @@ A lightweight Twitter MCP server for Claude Code. Zero compilation — edit and 
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                   twitter-mcp v2                     │
-│                   (MCP Server)                       │
+│                    twitter-mcp                        │
+│                   (MCP Server)                        │
 ├─────────────────────────────────────────────────────┤
 │                     13 Tools                         │
 │  ┌──────────────┐ ┌──────────────┐ ┌─────────────┐  │
@@ -136,18 +136,6 @@ const config = loadConfig();
 const reader = new ReaderClient(config.reader);
 reader.getUserInfo('naval').then(r => console.log(r.data.userName));
 "
-```
-
-## Migrating from v1 (Go)
-
-v2 reuses the same `~/.twitter-mcp/config.json` — no config changes needed.
-
-```bash
-# Remove old Go binary
-claude mcp remove twitter
-
-# Add new Bun version
-claude mcp add twitter -- bun run /path/to/twitter-mcp/src/index.ts -config ~/.twitter-mcp/config.json
 ```
 
 ## Tech Stack

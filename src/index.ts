@@ -34,7 +34,7 @@ async function main() {
 
   const server = new McpServer({
     name: "twitter-mcp",
-    version: "2.0.0",
+    version: "1.0.0",
   });
 
   registerSearchTools(server, reader, config.defaults);
@@ -46,7 +46,7 @@ async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
 
-  process.stderr.write("twitter-mcp v2 started\n");
+  process.stderr.write("twitter-mcp started\n");
 }
 
 main().catch((err) => {
