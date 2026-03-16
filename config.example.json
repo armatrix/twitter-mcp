@@ -1,0 +1,17 @@
+{
+  "reader": {
+    "provider": "twitterapi.io",
+    "api_key": "your-twitterapi-io-key"
+  },
+  "writer": {
+    "provider": "twitter-official",
+    "api_key": "your-consumer-api-key",
+    "api_secret_key": "your-consumer-api-secret",
+    "access_token": "your-access-token",
+    "access_token_secret": "your-access-token-secret"
+  },
+  "defaults": {
+    "timeline_count": 20,
+    "search_count": 20
+  }
+}
