@@ -10,6 +10,7 @@ const UPLOAD_URL = "https://upload.twitter.com/1.1/media/upload.json";
 export class WriterClient {
   private oauth: OAuth;
   private token: { key: string; secret: string };
+  private userId: string | null = null;
 
   constructor(config: WriterConfig) {
     this.oauth = new OAuth({
@@ -33,6 +34,25 @@ export class WriterClient {
     const requestData = { url, method };
     const authData = this.oauth.authorize(requestData, this.token);
     return this.oauth.toHeader(authData).Authorization;
+  }
+
+  private async getUserId(): Promise<string> {
+    if (this.userId) return this.userId;
+
+    const url = `${BASE_URL}/users/me`;
+    const authHeader = this.getAuthHeader(url, "GET");
+
+    const res = await fetch(url, {
+      headers: { Authorization: authHeader },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to get user ID: ${res.status}`);
+    }
+
+    const data = (await res.json()) as { data: { id: string } };
+    this.userId = data.data.id;
+    return this.userId;
   }
 
   async uploadMedia(filePath: string): Promise<string> {
@@ -110,6 +130,85 @@ export class WriterClient {
     if (!res.ok) {
       const errBody = await res.text();
       throw new Error(`Twitter API POST /tweets failed: ${res.status} ${errBody}`);
+    }
+
+    return res.json();
+  }
+
+  async likeTweet(tweetId: string): Promise<unknown> {
+    const userId = await this.getUserId();
+    const url = `${BASE_URL}/users/${userId}/likes`;
+    const authHeader = this.getAuthHeader(url, "POST");
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: authHeader,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ tweet_id: tweetId }),
+    });
+
+    if (!res.ok) {
+      const errBody = await res.text();
+      throw new Error(`Twitter API like failed: ${res.status} ${errBody}`);
+    }
+
+    return res.json();
+  }
+
+  async unlikeTweet(tweetId: string): Promise<unknown> {
+    const userId = await this.getUserId();
+    const url = `${BASE_URL}/users/${userId}/likes/${tweetId}`;
+    const authHeader = this.getAuthHeader(url, "DELETE");
+
+    const res = await fetch(url, {
+      method: "DELETE",
+      headers: { Authorization: authHeader },
+    });
+
+    if (!res.ok) {
+      const errBody = await res.text();
+      throw new Error(`Twitter API unlike failed: ${res.status} ${errBody}`);
+    }
+
+    return res.json();
+  }
+
+  async retweet(tweetId: string): Promise<unknown> {
+    const userId = await this.getUserId();
+    const url = `${BASE_URL}/users/${userId}/retweets`;
+    const authHeader = this.getAuthHeader(url, "POST");
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: authHeader,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ tweet_id: tweetId }),
+    });
+
+    if (!res.ok) {
+      const errBody = await res.text();
+      throw new Error(`Twitter API retweet failed: ${res.status} ${errBody}`);
+    }
+
+    return res.json();
+  }
+
+  async deleteTweet(tweetId: string): Promise<unknown> {
+    const url = `${BASE_URL}/tweets/${tweetId}`;
+    const authHeader = this.getAuthHeader(url, "DELETE");
+
+    const res = await fetch(url, {
+      method: "DELETE",
+      headers: { Authorization: authHeader },
+    });
+
+    if (!res.ok) {
+      const errBody = await res.text();
+      throw new Error(`Twitter API delete failed: ${res.status} ${errBody}`);
     }
 
     return res.json();

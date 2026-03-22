@@ -15,6 +15,9 @@ const LOCATION_TO_WOEID: Record<string, string> = {
   BR: "23424768",
   IN: "23424848",
   MX: "23424900",
+  SG: "23424948",
+  KR: "23424868",
+  HK: "23424937",
 };
 
 export function registerDiscoveryTools(server: McpServer, reader: ReaderClient) {
@@ -23,10 +26,10 @@ export function registerDiscoveryTools(server: McpServer, reader: ReaderClient) 
     "Get trending topics on Twitter for a location",
     {
       location: z
-        .enum(["", "Worldwide", "US", "JP", "GB", "CA", "AU", "DE", "FR", "BR", "IN", "MX"])
+        .enum(["", "Worldwide", "US", "JP", "GB", "CA", "AU", "DE", "FR", "BR", "IN", "MX", "SG", "KR", "HK"])
         .optional()
         .describe(
-          "Location code (empty or 'Worldwide' for global trends). Supported: US, JP, GB, CA, AU, DE, FR, BR, IN, MX"
+          "Location code (empty or 'Worldwide' for global trends). Supported: US, JP, GB, CA, AU, DE, FR, BR, IN, MX, SG, KR, HK"
         ),
     },
     async ({ location }) => {
