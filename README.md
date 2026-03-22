@@ -9,7 +9,7 @@ A lightweight Twitter MCP server for Claude Code. Zero compilation — edit and 
 │                    twitter-mcp                        │
 │                   (MCP Server)                        │
 ├─────────────────────────────────────────────────────┤
-│                     13 Tools                         │
+│                  13 Tools + Media Upload              │
 │  ┌──────────────┐ ┌──────────────┐ ┌─────────────┐  │
 │  │ search_tweets│ │ get_tweet    │ │ get_user    │  │
 │  │ search_users │ │ get_article  │ │ get_timeline│  │
@@ -28,6 +28,7 @@ A lightweight Twitter MCP server for Claude Code. Zero compilation — edit and 
 │  │ (API Key)       │  │ API (OAuth 1.0a)   │        │
 │  │                 │  │                    │        │
 │  │ 12 read tools   │  │ • post_tweet       │        │
+│  │                 │  │ • upload media     │        │
 │  └─────────────────┘  └────────────────────┘        │
 └─────────────────────────────────────────────────────┘
 ```
@@ -118,7 +119,16 @@ claude mcp list
 
 | Tool | Description |
 |------|-------------|
-| `post_tweet` | Post a tweet (supports reply and quote) |
+| `post_tweet` | Post a tweet with optional images (supports reply, quote, up to 4 images) |
+
+**Image upload**: Pass `media_paths` with up to 4 local file paths (png/jpg/gif/webp). Images are uploaded via Twitter v1.1 media endpoint, then attached to the tweet.
+
+```
+post_tweet(
+  text: "Hello world",
+  media_paths: ["/path/to/screenshot.png", "/path/to/chart.jpg"]
+)
+```
 
 ## Development
 
