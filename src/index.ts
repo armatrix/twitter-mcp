@@ -3,6 +3,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { loadConfig } from "./config.js";
 import { ReaderClient } from "./clients/reader.js";
 import { WriterClient } from "./clients/writer.js";
+import { CookieClient } from "./clients/cookie.js";
 import { registerSearchTools } from "./tools/search.js";
 import { registerTweetTools } from "./tools/tweets.js";
 import { registerUserTools } from "./tools/users.js";
@@ -31,17 +32,22 @@ async function main() {
 
   const reader = new ReaderClient(config.reader);
   const writer = new WriterClient(config.writer);
+  const cookie = config.cookie ? new CookieClient(config.cookie) : null;
+
+  if (cookie) {
+    process.stderr.write("Cookie client enabled (reply fallback active)\n");
+  }
 
   const server = new McpServer({
     name: "twitter-mcp",
-    version: "1.0.0",
+    version: "1.1.0",
   });
 
   registerSearchTools(server, reader, config.defaults);
   registerTweetTools(server, reader);
   registerUserTools(server, reader, config.defaults);
   registerDiscoveryTools(server, reader);
-  registerWriteTools(server, writer);
+  registerWriteTools(server, writer, cookie);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

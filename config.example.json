@@ -10,6 +10,10 @@
     "access_token": "your-access-token",
     "access_token_secret": "your-access-token-secret"
   },
+  "cookie": {
+    "ct0": "your-ct0-cookie-from-browser",
+    "auth_token": "your-auth-token-cookie-from-browser"
+  },
   "defaults": {
     "timeline_count": 20,
     "search_count": 20

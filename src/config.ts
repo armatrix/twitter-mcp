@@ -15,6 +15,11 @@ export interface WriterConfig {
   access_token_secret: string;
 }
 
+export interface CookieConfig {
+  ct0: string;
+  auth_token: string;
+}
+
 export interface DefaultsConfig {
   timeline_count: number;
   search_count: number;
@@ -24,6 +29,7 @@ export interface DefaultsConfig {
 export interface Config {
   reader: ReaderConfig;
   writer: WriterConfig;
+  cookie?: CookieConfig;
   defaults: DefaultsConfig;
 }
 
