@@ -32,8 +32,46 @@ export class ReaderClient {
     return res.json() as Promise<T>;
   }
 
-  async searchTweets(query: string, queryType = "Latest"): Promise<unknown> {
-    return this.get("/twitter/tweet/advanced_search", { query, queryType });
+  async searchTweets(
+    query: string,
+    queryType = "Latest",
+    filters?: {
+      min_likes?: number;
+      min_followers?: number;
+      max_results?: number;
+      exclude_replies?: boolean;
+    }
+  ): Promise<unknown> {
+    const raw = await this.get<{
+      tweets?: Array<{
+        likeCount?: number;
+        isReply?: boolean;
+        author?: { followers?: number };
+        [key: string]: unknown;
+      }>;
+      [key: string]: unknown;
+    }>("/twitter/tweet/advanced_search", { query, queryType });
+
+    if (!filters || !raw.tweets) return raw;
+
+    let tweets = raw.tweets;
+
+    if (filters.exclude_replies) {
+      tweets = tweets.filter((t) => !t.isReply);
+    }
+    if (filters.min_likes !== undefined) {
+      tweets = tweets.filter((t) => (t.likeCount ?? 0) >= filters.min_likes!);
+    }
+    if (filters.min_followers !== undefined) {
+      tweets = tweets.filter(
+        (t) => (t.author?.followers ?? 0) >= filters.min_followers!
+      );
+    }
+    if (filters.max_results !== undefined) {
+      tweets = tweets.slice(0, filters.max_results);
+    }
+
+    return { ...raw, tweets };
   }
 
   async getTweets(tweetIds: string[]): Promise<unknown> {

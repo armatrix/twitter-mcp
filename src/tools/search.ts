@@ -10,17 +10,40 @@ export function registerSearchTools(
 ) {
   server.tool(
     "search_tweets",
-    "Search tweets by keyword or advanced query",
+    "Search tweets by keyword or advanced query. Supports filtering by engagement and author metrics.",
     {
       query: z.string().describe("Search query (supports Twitter advanced search syntax)"),
       query_type: z
         .enum(["Latest", "Top"])
         .optional()
         .describe("Query type: Latest (default) or Top"),
+      min_likes: z
+        .number()
+        .optional()
+        .describe("Minimum likes to include (filters out low-engagement tweets)"),
+      min_followers: z
+        .number()
+        .optional()
+        .describe("Minimum author followers to include"),
+      max_results: z
+        .number()
+        .optional()
+        .describe("Maximum number of tweets to return (default: all)"),
+      exclude_replies: z
+        .boolean()
+        .optional()
+        .describe("Exclude reply tweets (default: false)"),
     },
-    async ({ query, query_type }) => {
+    async ({ query, query_type, min_likes, min_followers, max_results, exclude_replies }) => {
       try {
-        const result = await reader.searchTweets(query, query_type ?? "Latest");
+        const filters =
+          min_likes !== undefined ||
+          min_followers !== undefined ||
+          max_results !== undefined ||
+          exclude_replies
+            ? { min_likes, min_followers, max_results, exclude_replies: exclude_replies ?? false }
+            : undefined;
+        const result = await reader.searchTweets(query, query_type ?? "Latest", filters);
         return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
       } catch (err) {
         return {
