@@ -3,8 +3,9 @@ import { homedir } from "os";
 import { resolve } from "path";
 
 export interface ReaderConfig {
-  provider: "twitterapi.io";
+  provider: "twitterapi.io" | "hermes-tweet";
   api_key: string;
+  base_url?: string;
 }
 
 export interface WriterConfig {

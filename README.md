@@ -24,14 +24,15 @@ A lightweight Twitter MCP server for Claude Code. Zero compilation — edit and 
 │         ┌────────────────┼─────────────────┐                │
 │         ▼                ▼                  ▼               │
 │  ┌─────────────┐  ┌─────────────┐  ┌──────────────┐        │
-│  │twitterapi.io│  │Official API │  │Cookie Client │        │
-│  │ (API Key)   │  │(OAuth 1.0a) │  │(ct0+auth)    │        │
+│  │Read provider│  │Official API │  │Cookie Client │        │
+│  │ API Key     │  │(OAuth 1.0a) │  │(ct0+auth)    │        │
 │  │             │  │             │  │              │        │
-│  │ 13 read     │  │ post_tweet  │  │ reply        │        │
-│  │ tools       │  │ like/unlike │  │ fallback     │        │
-│  │             │  │ retweet     │  │ (auto on 403)│        │
+│  │ twitterapi  │  │ post_tweet  │  │ reply        │        │
+│  │ or Hermes   │  │ like/unlike │  │ fallback     │        │
+│  │ Tweet       │  │ retweet     │  │ (auto on 403)│        │
 │  │             │  │ delete      │  │              │        │
-│  │             │  │ media upload│  │              │        │
+│  │ 13 read     │  │ media upload│  │              │        │
+│  │ tools       │  │             │  │              │        │
 │  └─────────────┘  └─────────────┘  └──────────────┘        │
 └──────────────────────────────────────────────────────────────┘
 ```
@@ -41,6 +42,7 @@ A lightweight Twitter MCP server for Claude Code. Zero compilation — edit and 
 | API | Auth | Cost | Use Case |
 |-----|------|------|----------|
 | **twitterapi.io** | API Key | ~$0.15/1K calls | Read operations (search, timeline, user info) |
+| **Hermes Tweet / Xquik** | API Key | Xquik account | Optional read operations through the same endpoint catalog used by the Hermes Agent plugin |
 | **Official Twitter API** | OAuth 1.0a | Free tier | Write operations (post, like, retweet, delete) |
 | **Cookie (browser session)** | ct0 + auth_token | Free | Reply fallback (Free tier OAuth blocks replies to non-interacted tweets) |
 
@@ -87,8 +89,27 @@ Edit `~/.twitter-mcp/config.json`:
 }
 ```
 
+To use the Hermes Tweet / Xquik read provider instead, change only the
+`reader` block:
+
+```json
+{
+  "reader": {
+    "provider": "hermes-tweet",
+    "api_key": "your-xquik-api-key",
+    "base_url": "https://xquik.com"
+  }
+}
+```
+
+`base_url` is optional and defaults to `https://xquik.com`. This provider keeps
+the same MCP tool names while mapping read calls to the Xquik endpoint catalog
+used by [Hermes Tweet](https://github.com/Xquik-dev/hermes-tweet). Writes still
+use the configured writer and cookie fallback.
+
 **Get credentials:**
 - `reader.api_key`: [twitterapi.io](https://twitterapi.io) — sign up and copy API key
+- `reader.api_key` with `provider: "hermes-tweet"`: create an Xquik API key and keep it in `config.json`
 - `writer.*`: [Twitter Developer Portal](https://developer.twitter.com) → Create App → Keys and Tokens
 - `cookie.*`: Browser DevTools → Application → Cookies → x.com → copy `ct0` and `auth_token` values
 
@@ -118,7 +139,7 @@ claude mcp list
 
 ## Tools
 
-### Read (13 tools — twitterapi.io)
+### Read (13 tools - configured reader provider)
 
 | Tool | Description |
 |------|-------------|
